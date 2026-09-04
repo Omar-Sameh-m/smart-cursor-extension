@@ -1,0 +1,8 @@
+{
+  "name": "smart-cursor-extension",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build-config.js"
+  }
+}

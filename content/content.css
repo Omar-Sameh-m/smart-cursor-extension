@@ -1,0 +1,209 @@
+/**
+ * Smart Cursor - Content Styles (Elder-First)
+ * Larger cursor, bigger tooltip text, risk warning style.
+ */
+
+#smart-cursor-pointer {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  pointer-events: none;
+  z-index: 2147483640;
+  display: none;
+  opacity: 0;
+  left: 0;
+  top: 0;
+  transition: left 350ms cubic-bezier(0.16, 1, 0.3, 1),
+              top 350ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 180ms ease-out,
+              opacity 200ms ease-in;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.35));
+}
+
+.smart-cursor-halo {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  width: 76px;
+  height: 76px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(59,130,246,0.45) 0%, rgba(37,99,235,0) 70%);
+  animation: smart-cursor-pulse 1.6s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes smart-cursor-pulse {
+  0%   { transform: scale(0.8); opacity: 0.9; }
+  50%  { transform: scale(1.4); opacity: 0.25; }
+  100% { transform: scale(0.8); opacity: 0.9; }
+}
+
+/* Highlight ring on individual target element */
+.smart-cursor-highlighted {
+  outline: 3px solid #2563eb !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 0 8px rgba(37,99,235,0.22) !important;
+  transition: outline 200ms ease, box-shadow 200ms ease !important;
+  position: relative !important;
+  z-index: 2147483630 !important;
+}
+
+/* Explorable element indicator when section tour step is active */
+.smart-cursor-section-element {
+  outline: 2px dashed #3b82f6 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12) !important;
+  transition: outline 200ms ease, box-shadow 200ms ease !important;
+}
+
+/* Floating Tooltip */
+#smart-cursor-tooltip {
+  position: absolute;
+  display: none;
+  opacity: 0;
+  z-index: 2147483645;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  background: #ffffff;
+  color: #111827;
+  border: 2px solid #dbeafe;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 16px 40px -8px rgba(0,0,0,0.18), 0 8px 16px -6px rgba(0,0,0,0.1);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  transition: opacity 220ms ease-out;
+}
+
+.smart-cursor-tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.smart-cursor-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #1d4ed8;
+  background: #dbeafe;
+  padding: 3px 10px;
+  border-radius: 9999px;
+}
+
+.smart-cursor-close-btn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.smart-cursor-close-btn:hover { color: #111827; background: #f3f4f6; }
+
+.smart-cursor-tooltip-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.smart-cursor-tooltip-body {
+  font-size: 15px;
+  color: #374151;
+  line-height: 1.65;
+}
+
+/* Risk warning inside tooltip */
+.smart-cursor-risk-warning {
+  margin-top: 10px;
+  background: #fff1f2;
+  border: 2px solid #fecdd3;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #be123c;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  line-height: 1.4;
+}
+
+.smart-cursor-risk-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.smart-cursor-risk-reassurance {
+  font-size: 12px;
+  color: #9a1c3e;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* SPA change toast */
+#smart-cursor-change-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  color: #111827;
+  border: 2px solid #d1d5db;
+  border-radius: 9999px;
+  padding: 10px 16px;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  transform: translateY(70px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms ease;
+}
+
+#smart-cursor-change-toast.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.smart-cursor-toast-icon { font-size: 18px; }
+.smart-cursor-toast-text { font-weight: 500; color: #374151; }
+
+.smart-cursor-toast-btn {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 9999px;
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.smart-cursor-toast-btn:hover { background: #1d4ed8; }
+
+.smart-cursor-toast-close {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.smart-cursor-toast-close:hover { color: #6b7280; }

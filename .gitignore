@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+.dev.vars
+config.local.js
+*.local
+*.pem
+*.key
+.DS_Store
+node_modules/

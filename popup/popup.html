@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Cursor</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+            <path d="M4 3L11.5 21L14.5 13.5L22 10.5L4 3Z" fill="#3B82F6" stroke="#1D4ED8" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">Smart Cursor</h1>
+          <p class="brand-subtitle">AI Page Guide</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="toggle-power-btn" class="power-toggle-btn active" title="Turn Smart Cursor ON or OFF">
+          <span id="power-status-dot" class="status-dot green"></span>
+          <span id="power-status-text">ON</span>
+        </button>
+        <button id="toggle-voice-btn" class="icon-btn active" title="Toggle voice narration" aria-label="Toggle voice">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ── SCREEN 1: Start ──────────────────────────────────────────── -->
+    <section id="view-familiarity" class="view-section active">
+
+      <!-- One-tap orientation button -->
+      <button id="btn-orientation" class="orientation-btn">
+        <span class="orientation-btn-icon">🔍</span>
+        <span class="orientation-btn-text">What page am I on?</span>
+      </button>
+
+      <!-- Orientation result (hidden until fetched) -->
+      <div id="orientation-result" class="orientation-result" style="display:none;">
+        <p id="orientation-text"></p>
+      </div>
+
+      <div class="divider-label">or ask a question about this page</div>
+
+      <!-- Ask a Question Card -->
+      <div class="ask-card">
+        <div class="ask-header">
+          <span class="ask-icon">💬</span>
+          <span class="ask-title">Ask Smart Cursor</span>
+        </div>
+        <div class="ask-input-row">
+          <input type="text" id="input-ask-question" class="ask-input" placeholder="e.g. Where do I reset my password?" />
+          <button id="btn-ask-submit" class="ask-submit-btn" title="Ask question">
+            <span>Ask</span>
+          </button>
+        </div>
+        <div id="ask-result-box" class="ask-result-box" style="display: none;">
+          <p id="ask-result-text" class="ask-result-text"></p>
+        </div>
+      </div>
+
+      <div class="divider-label">or take a full guided tour</div>
+
+      <button id="btn-start-tour" class="primary-btn">
+        <span>Scan &amp; Start Guided Tour</span>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+
+      <div class="reactive-toggle-row">
+        <label class="switch-container">
+          <input type="checkbox" id="chk-reactive-mode">
+          <span class="switch-slider"></span>
+        </label>
+        <div class="switch-label-group">
+          <span class="switch-label">Point &amp; Explain Mode</span>
+          <span class="switch-sublabel">Clicks show AI explanations. Turn OFF to navigate normally.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SCREEN 2: Loading ───────────────────────────────────────── -->
+    <section id="view-loading" class="view-section">
+      <div class="loader-spinner"></div>
+      <p id="loading-text">Analyzing page with Gemini AI...</p>
+    </section>
+
+    <!-- ── SCREEN 3: Tour Active ───────────────────────────────────── -->
+    <section id="view-tour" class="view-section">
+
+      <!-- Progress bar -->
+      <div class="tour-status-bar">
+        <span id="tour-step-counter" class="step-badge">Section 1 of 4</span>
+        <div class="tour-progress">
+          <div id="tour-progress-fill" class="progress-bar" style="width: 25%"></div>
+        </div>
+      </div>
+
+      <!-- Current step card -->
+      <div class="tour-current-card" id="tour-current-card">
+        <h3 id="step-title">Loading step...</h3>
+
+        <div id="missing-element-banner" class="missing-element-alert" style="display: none;">
+          Couldn't find this on the page — it may have moved. Advancing...
+        </div>
+
+        <!-- Risk warning (shown only for high-stakes actions) -->
+        <div id="risk-warning-banner" class="risk-warning" style="display: none;">
+          <span class="risk-icon">⚠️</span>
+          <div class="risk-warning-copy">
+            <span id="risk-warning-text"></span>
+            <span class="risk-warning-reassurance">There's no rush — you can look around before deciding.</span>
+          </div>
+        </div>
+
+        <p id="step-explanation">Thinking...</p>
+
+        <!-- Outcome Capabilities Bullet List -->
+        <div id="capabilities-container" class="capabilities-container" style="display: none;">
+          <div class="capabilities-header">What you can do in this section:</div>
+          <ul id="capabilities-list" class="capabilities-list"></ul>
+        </div>
+
+        <div id="interactive-hint-badge" class="interactive-hint-badge" style="display: none;">
+          💡 Tap any outlined element on the page for specific details
+        </div>
+
+        <!-- Jargon terms (expandable pills) -->
+        <div id="jargon-terms-container" class="jargon-container" style="display:none;"></div>
+      </div>
+
+      <!-- Audio controls -->
+      <div class="audio-row">
+        <button id="btn-replay-audio" class="audio-btn" title="Play / Pause narration">
+          <svg id="icon-audio-play" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <svg id="icon-audio-pause" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+            <rect x="6" y="4" width="4" height="16"></rect>
+            <rect x="14" y="4" width="4" height="16"></rect>
+          </svg>
+          <span id="audio-btn-label">Play narration</span>
+        </button>
+      </div>
+
+      <!-- Nav controls -->
+      <div class="tour-controls">
+        <button id="btn-prev-step" class="secondary-btn" disabled>← Prev</button>
+        <button id="btn-next-step" class="primary-btn flex-1">Next →</button>
+      </div>
+
+      <!-- STOP TOUR — large and obvious -->
+      <button id="btn-stop-tour" class="stop-btn">
+        ⏹ Stop Tour
+      </button>
+
+      <!-- Tour completion recap -->
+      <div id="tour-completion-card" class="completion-card" style="display: none;">
+        <div class="completion-header">🎉 Tour Complete!</div>
+        <p id="tour-recap-text" class="completion-recap">Generating your summary...</p>
+      </div>
+
+      <!-- All steps list -->
+      <div class="tour-steps-list-container">
+        <div class="steps-list-header">All Steps</div>
+        <div id="tour-steps-list" class="steps-list"></div>
+      </div>
+
+    </section>
+
+    <!-- ── SCREEN 4: Error ─────────────────────────────────────────── -->
+    <section id="view-error" class="view-section">
+      <div class="error-box">
+        <div class="error-icon">⚠️</div>
+        <p id="error-message">Unable to connect to AI. Please check your internet connection and try again.</p>
+        <button id="btn-retry" class="primary-btn">Try Again</button>
+      </div>
+    </section>
+
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
