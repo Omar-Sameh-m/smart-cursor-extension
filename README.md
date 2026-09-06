@@ -1,22 +1,48 @@
 # Smart Cursor
 
-Smart Cursor helps people who find modern websites confusing — especially older adults or anyone with reduced working memory — by pointing at and plainly explaining the most important actions on a page. It runs as a Chrome extension and delivers short, staged guided tours with optional voice narration so users can see and hear what matters without being overwhelmed.
+Smart Cursor is a Chrome extension that helps people navigate confusing websites without feeling lost. It points at the important parts of a page, explains them in plain language, and guides users through a calm, structured tour instead of dumping a wall of technical text on them. It is designed especially for older adults and anyone who feels overwhelmed by unfamiliar interfaces.
+
+<p align="center">
+  <img src="images/smart_cursor_thumbnail.png" alt="Smart Cursor thumbnail" width="900" />
+</p>
 
 ## Why this exists
-Many assistive or AI tools only describe pages in text. Smart Cursor points at real page elements, explains one idea at a time, and paces information so users can follow along. The result is a low-friction, human-friendly walkthrough that reduces cognitive load compared to a dense text-only explanation.
+Most AI tools on the web are built around a chat box. They tell you what a page is doing, but they do not help you find it or understand it in context. Smart Cursor takes a different approach: it reads the page, identifies the main sections and actions, and highlights the relevant elements while explaining them one idea at a time. That makes the experience feel more like a guided walkthrough than a generic chatbot.
 
-## Core features
-- Guided, two-level tours that highlight sections and individual items
-- Risk warnings for potentially irreversible actions, with a calm reassurance line
-- Plain-language jargon pills that define unfamiliar terms inline
-- "Ask a question" that finds and points to answers on the page
-- Voice narration: high-quality Neural2 audio via an optional relay, with automatic browser-TTS fallback
+## What it does
 
-## Local setup (quick, exact steps)
-This project is intentionally local-first. The extension requires a Gemini API key to generate tours; follow these steps to run locally:
+### Guided tours for confusing pages
+Smart Cursor can build a simple, structured tour of a page and walk the user through the most important sections and actions without overwhelming them. The experience is paced to reduce mental load and to keep attention on one decision or one area at a time.
 
-1. Get a (free) Gemini API key: https://aistudio.google.com/
-2. Copy the example env and add your key:
+<p align="center">
+  <img src="images/tour_guide.png" alt="Smart Cursor guided tour" width="800" />
+</p>
+
+### Risk warnings before important actions
+When a page contains an action that may be risky or irreversible, Smart Cursor flags it clearly and adds a calmer, reassuring message so the user does not feel pushed into a bad decision. This helps people slow down and think before they act.
+
+### Plain-language explanations and jargon help
+The extension translates unfamiliar terms into plain language and surfaces definitions inline, so a person can understand what a button, label, or form field is for without needing to decode the site’s terminology.
+
+### Ask Smart Cursor about a page
+Users can ask a question about the currently loaded page, and the extension tries to answer using the page context instead of a generic AI response. It points at the relevant element or content area rather than only describing it in abstract text.
+
+<p align="center">
+  <img src="images/ask_smart_cursor.png" alt="Ask Smart Cursor on a page" width="800" />
+</p>
+
+### Voice narration for support and accessibility
+Smart Cursor also supports voice narration. For a better-quality narration path, it can use a Neural2/TTS relay; if that is unavailable, it falls back to the browser’s built-in speech support so the feature still works without a full hosted deployment.
+
+<p align="center">
+  <img src="images/point_to_explain.png" alt="Smart Cursor highlighting and explaining page elements" width="800" />
+</p>
+
+## Local setup
+This project is designed to run locally without requiring a deployed backend for the default path. The extension uses a local `.env` file and a generated config file for the Gemini API key.
+
+1. Get a free Gemini API key: https://aistudio.google.com/
+2. Copy the example env file and add your real key:
 
 ```bash
 cp .env.example .env
@@ -24,7 +50,7 @@ cp .env.example .env
 # GEMINI_API_KEY=your_real_key_here
 ```
 
-3. Generate the local runtime config:
+3. Generate the local config used by the extension:
 
 ```bash
 npm run build
@@ -32,56 +58,47 @@ npm run build
 
 4. Load the extension in Chrome:
 
-- Open `chrome://extensions/` in Chrome
-- Enable Developer mode (top-right)
-- Click "Load unpacked" and select this project folder
-- Open any regular website and click the Smart Cursor toolbar icon to start
+- Open `chrome://extensions/`
+- Enable Developer mode
+- Click `Load unpacked`
+- Select this project folder
+- Open any normal website and start using Smart Cursor
 
 Notes:
-- `npm run build` runs the small `build-config.js` script which reads `.env` and writes `config.local.js`. Both `.env` and `config.local.js` are ignored by git and must never be committed.
-- Neural2 voice narration requires the optional relay (see below). If the relay is not running or available, the extension will fall back to the browser's built-in TTS (window.speechSynthesis).
-
-## Optional: Neural2 TTS / relay
-A small Cloudflare Worker relay is included in `relay/` to convert text → Neural2 audio and return base64 MP3 to the extension. The relay is optional:
-
-- Use the relay if you want higher-quality Neural2 narration (the extension will call `http://localhost:3000/api/speak` by default).
-- If you don't run the relay, Smart Cursor will still function and will use the browser TTS fallback for narration.
-
-The `relay/` folder contains a `wrangler.toml` and the worker source; it is provided as an optional deployment path and is not required for local demos.
+- `npm run build` runs `build-config.js`, which reads `.env` and writes `config.local.js`.
+- `.env` and `config.local.js` are git-ignored and should not be committed.
+- The optional Cloudflare Worker in `relay/` remains available for a hosted or higher-quality Neural2 narration setup, but it is not required for the default local workflow.
 
 ## Project structure
-A short overview of the important files and folders:
 
-```
-/ (project root)
-├─ background.js          # Service worker: handles Gemini API calls and message routing
-├─ build-config.js        # Build helper: reads .env → writes config.local.js
-├─ config.local.js        # Generated at build time (contains GEMINI_API_KEY) — gitignored
-├─ .env.example           # Example env to copy from
-├─ popup/                 # Popup UI, tour orchestration and staged reveal logic
-├─ content/               # Content script injected into pages: highlights, tooltips, plays audio
-├─ relay/                 # Optional Cloudflare Worker: tour generation + TTS endpoints
-├─ manifest.json          # Chrome extension manifest (MV3, module background)
-└─ README.md
+```text
+/
+├─ background.js          # Chrome service worker: Gemini calls and message routing
+├─ build-config.js        # Generates config.local.js from .env
+├─ config.local.js        # Auto-generated local key file (gitignored)
+├─ .env.example           # Example env file to copy
+├─ .gitignore             # Ignores local secrets and generated config files
+├─ manifest.json          # Chrome extension manifest
+├─ content/               # Page content script: highlights, overlays, audio playback
+├─ popup/                 # Popup UI and tour orchestration
+├─ relay/                 # Optional Cloudflare Worker for hosted TTS/tour relay
+├─ icons/                 # Extension icons
+├─ images/                # Screenshots used in this README
+├─ README.md              # Project introduction and setup
+├─ LICENSE                # MIT license
+└─ package.json           # Build script for the local config step
 ```
 
 ## Known limitations
-- Does not work on canvas-based applications (e.g., Figma prototypes) where page elements are not standard DOM nodes.
-- Cannot access cross-origin iframe contents due to browser security restrictions.
-- The extension never clicks or navigates on the user's behalf — it points to and explains controls but does not perform actions for the user.
-- Neural2 audio requires a running relay or a compatible audio generation endpoint; without it, the extension will use browser TTS.
+- This extension is designed for regular DOM-based web pages and does not work on canvas-based apps such as Figma or similar editor interfaces.
+- It cannot access cross-origin iframe content because of browser security restrictions.
+- It does not click buttons or navigate the user around the site on their behalf; it highlights and explains the page instead.
+- Neural2 voice narration depends on a compatible relay or audio endpoint; if it is not available, the browser speech fallback is used instead.
 
 ## Troubleshooting
-- Missing Gemini key / configuration problems:
-  - Ensure you copied `.env.example` → `.env` and set `GEMINI_API_KEY`.
-  - Re-run `npm run build` after editing `.env` and then reload the extension in `chrome://extensions/`.
-- If narration falls back to browser speech:
-  - Either accept the fallback, or run/deploy the optional relay in `relay/` to provide Neural2 audio at `http://localhost:3000/api/speak`.
-- If the popup can't inject overlays on a page: avoid `chrome://` pages, extension pages, and other internal Chrome pages; try a normal public website.
+- If the extension reports missing configuration, make sure `.env` exists and contains `GEMINI_API_KEY`, then run `npm run build` again.
+- If narration falls back to browser speech, either accept that fallback or run the optional relay in `relay/` for better-quality Neural2 audio.
+- If the page cannot be scanned, try a normal public website rather than `chrome://` or another internal browser page.
 
 ## License
 This project is released under the MIT License. See the `LICENSE` file for details.
-
----
-
-If you want, the next changes that would help a public demo are a short CONTRIBUTING.md, an example screenshot or GIF (in /docs), and a simple LICENSE file (MIT). I can add any of those now.
